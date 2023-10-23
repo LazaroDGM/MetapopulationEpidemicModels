@@ -540,3 +540,110 @@ def fun_sis_lagrange_lite(Out, In, Beta, Gamma):
         return new_y
     return fun
 
+##################################################
+###### MODELO SEIR CON MOVIMIENTO EULERIANO ######
+##################################################
+
+def fun_seir_eulerian(F, Beta, Gamma, Sigma):
+    '''
+    Genera el sistema de ecuaciones para un modelo SEIR movimiento euleriano.
+    
+    Parámetros
+    ---
+    `F`: Matriz de movimiento de dimensión `K x K` (matriz cuadrada con diagonal nula).
+    Indica la tasa de traslado de un nodo `i` a un nodo `j`.
+
+    `Beta`: Probabilidad de Contagio por nodo. Vector de tipo `float` y tamaño `K`.
+
+    `Gamma`: Tasa de Recuperación por nodo. Vector de tipo `float` y tamaño `K`.
+
+    Retorno
+    ---
+    `fun`: Función con el sistema de ecuaciones.
+    Tiene por parámetros `t` (variable independiente),
+    y `y` con la siguiente estructura: Vector de tamaño `5*K` (aplanado),
+    con los susceptibles iniciales por cada nodo, más los expuestos, los infestados, los recuperados
+    y la población total, cada uno por cada nodo.
+    '''
+    K = F.shape[0]
+    def fun(t,y):
+        y.resize((5,K))
+        new_y = np.zeros((5,K))
+        for i in range(K):
+            new_y[0,i] = - Beta[i] * y[0,i] * y[1,i] / y[4,i]
+            new_y[1,i] = Beta[i] * y[0,i] * y[1,i] / y[4,i] - Sigma[i] * y[1,i]
+            new_y[2,i] = Sigma[i] * y[1,i] - Gamma[i] * y[2,i]
+            new_y[3,i] = Gamma[i] * y[2,i]
+            for j in range(K):
+                new_y[0,i] += F[j,i] * y[0,j] - F[i,j] * y[0,i]
+                new_y[1,i] += F[j,i] * y[1,j] - F[i,j] * y[1,i]
+                new_y[2,i] += F[j,i] * y[2,j] - F[i,j] * y[2,i]
+                new_y[3,i] += F[j,i] * y[3,j] - F[i,j] * y[3,i]
+                new_y[4,i] += F[j,i] * y[4,j] - F[i,j] * y[4,i]
+        y.resize((5*K,))
+        new_y.resize((5*K,))
+        return new_y
+    return fun
+
+####################################################
+###### MODELO SEIR CON MOVIMIENTO LAGRANGIANO ######
+####################################################
+
+def fun_seir_lagrange(Out, In, Beta, Gamma, Sigma):
+    '''
+    Genera el sistema de ecuaciones para un modelo SEIR movimiento lagrangiano.
+    
+    Parámetros
+    ---
+    `Out`: Matriz de movimiento de emigración de dimensión `K x K` (matriz cuadrada con diagonal nula).
+    Indica la tasa de traslado de los agentes de `i` en `i` que se mueven al nodo `j`.
+
+    `In`: Matriz de movimiento de inmigración de dimensión `K x K` (matriz cuadrada con diagonal nula).
+    Indica la tasa de traslado de los agentes de `i` en `j` que regresan al nodo `i`.
+
+    `Beta`: Probabilidad de Contagio por nodo. Vector de tipo `float` y tamaño `K`.
+
+    `Gamma`: Tasa de Recuperación por nodo. Vector de tipo `float` y tamaño `K`.
+
+    Retorno
+    ---
+    `fun`: Función con el sistema de ecuaciones.
+    Tiene por parámetros `t` (variable independiente),
+    y `y` con la siguiente estructura: Vector de tamaño `5*K*K` (aplanado),
+    con los susceptibles iniciales, los expuestos, los infestados, los recuperados
+    y la población total, de un nodo en otro.
+    '''
+    K = Out.shape[0]
+    Out_i_k = Out.sum(axis=1)
+    def fun(t,y):
+        y.resize((5,K,K))
+        I_k_i = y[2].sum(axis=0)
+        N_k_i = y[4].sum(axis=0)
+        new_y = np.zeros((5,K,K))
+        for i in range(K):
+            for j in range(K):
+                if i == j:
+                    new_y[0,i,i] = - Beta[i] * y[0,i,i] * I_k_i[i] / N_k_i[i] - \
+                                    y[0,i,i] * Out_i_k[i] + (In[i,] * y[0,i]).sum()
+                    new_y[1,i,i] =   Beta[i] * y[0,i,i] * I_k_i[i] / N_k_i[i] - Sigma[i] * y[1,i,i] - \
+                                    y[1,i,i] * Out_i_k[i] + (In[i,] * y[1,i]).sum()
+                    new_y[2,i,i] =   Sigma[i] * y[1,i,i] - Gamma[i] * y[2,i,i] - \
+                                    y[2,i,i] * Out_i_k[i] + (In[i,] * y[2,i]).sum()
+                    new_y[3,i,i] =   Gamma[i] * y[2,i,i] - \
+                                    y[3,i,i] * Out_i_k[i] + (In[i,] * y[3,i]).sum()
+                    new_y[4,i,i] = - y[4,i,i] * Out_i_k[i] + (In[i,] * y[4,i]).sum()
+                else:
+                    new_y[0,i,j] = - Beta[j] * y[0,i,j] * I_k_i[j] / N_k_i[j] - \
+                                    In[i,j] * y[0,i,j] + Out[i,j] * y[0,i,i]
+                    new_y[1,i,j] =   Beta[j] * y[0,i,j] * I_k_i[j] / N_k_i[j] - Sigma[j] * y[1,i,j] - \
+                                    In[i,j] * y[1,i,j] + Out[i,j] * y[1,i,i]
+                    new_y[2,i,j] =   Sigma[j] * y[1,i,j] - Gamma[j] * y[2,i,j] - \
+                                    In[i,j] * y[2,i,j] + Out[i,j] * y[2,i,i]
+                    new_y[3,i,j] =   Gamma[j] * y[2,i,j] - \
+                                    In[i,j] * y[3,i,j] + Out[i,j] * y[3,i,i]
+                    new_y[4,i,j] = - In[i,j] * y[4,i,j] + Out[i,j] * y[4,i,i]
+                                   
+        y.resize((5*K*K,))
+        new_y.resize((5*K*K,))
+        return new_y
+    return fun
