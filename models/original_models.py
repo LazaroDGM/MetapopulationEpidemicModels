@@ -100,3 +100,61 @@ def fun_seir_model(beta, gamma, sigma, N):
         return new_y
     return fun
 
+#######################################################
+##### MOVIMIENTO EULERIANO Y LAGRANGIANO (PUROS) ######
+#######################################################
+
+def fun_euler_mov(F):
+    '''
+    Genera el sistema de ecuaciones para un modelo movimiento euleriano.
+    
+    Parámetros
+    ---
+    `F`: Matriz de movimiento de dimensión `K x K` (matriz cuadrada con diagonal nula).
+    Indica la tasa de traslado de un nodo `i` a un nodo `j`.
+
+    Retorno
+    ---
+    `fun`: Función con el sistema de ecuaciones.
+    Tiene por parámetros `t` (variable independiente),
+    y `y` (vector de una dimensión, de tamaño `K`, con la población inicial de cada nodo).
+    '''
+    K = F.shape[0]
+    def fun(t,y):
+        new_y = np.zeros((K,), dtype=float)
+        for i in range(K):
+            for j in range(K):
+                new_y[i] += F[j,i] * y[j] - F[i,j] * y[i]
+        return new_y
+    return fun
+
+def fun_lagrange_mov(O, I):
+    '''
+    Genera el sistema de ecuaciones para un modelo movimiento lagrangiano.
+    
+    Parámetros
+    ---
+    `O`: Matriz de movimiento de emigración de dimensión `K x K` (matriz cuadrada con diagonal nula).
+    Indica la tasa de traslado de los agentes de `i` en `i` que se mueven al nodo `j`.
+
+    `I`: Matriz de movimiento de inmigración de dimensión `K x K` (matriz cuadrada con diagonal nula).
+    Indica la tasa de traslado de los agentes de `i` en `j` que regresan al nodo `i`.
+
+    Retorno
+    ---
+    `fun`: Función con el sistema de ecuaciones.
+    Tiene por parámetros `t` (variable independiente),
+    y `y` (vector de dimensión `K x K`, con la población inicial en cada nodo `i` que se encuentran en el nodo `j`).
+    '''
+    K = I.shape[0]
+    def fun(t, y):
+        y = np.resize(y, (K,K))
+        new_y = np.zeros((K,K), dtype=float)
+        for i in range(K):
+            for j in range(K):
+                new_y[i,i] += I[i,j] * y[i,j] - O[i,j] * y[i,i]
+                if i != j:
+                    new_y[i,j] = O[i,j] * y[i,i] - I[i,j] * y[i,j]
+        return new_y.flatten()
+    return fun
+
