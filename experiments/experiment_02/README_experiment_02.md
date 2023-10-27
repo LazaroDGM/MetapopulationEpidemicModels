@@ -1,6 +1,5 @@
 # Experimento 02
 
----
 En este pipeline, se prueba la eficiencia de 4 métodos diferentes que implementan el sistema de ecuaciones diferenciales de un modelo SIR con movimiento Lagrangiano para su evaluación en el algoritmo de resolución numérica `solve_ivp` de `scipy.integrate`. Se crearon $19$ conjuntos de parámetros con $30$ versiones de parámetros diferentes generados aleatoriamente. Cada conjunto de parámetros se confeccionó atendiendo la cantidad de nodos de la red del modelo matemático, en este caso siendo $K$ la cantidad de nodos, se generaron conjuntos de parámetros para $K = 2,3,...,20$.
 
 Los **casos 1 y 2** son implementaciones comunes en `Python`. En una la función principal crea dinámicamente una función en términos de $t$ y $y$, pero que ya tiene implícito los parámetros del modelo y es la que se usa para evaluar el SEDO. En cambio la otra, está en términos de $t$, $y$ y el resto de parámetros, donde se evalúa directamente el SEDO.
