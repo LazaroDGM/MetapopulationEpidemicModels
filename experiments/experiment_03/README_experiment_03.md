@@ -23,9 +23,9 @@ Para la realizaión de la prueba primero se resuelve un modelo con parámetros p
 
 Además la resolución del SEDO se realiza para $t \in (0,300)$. En dicha prueba el autor se propone hallar los valores de $\beta$ y $\gamma$, que minimicen la función de coste, manteniendo fijos el resto de valores. Aunque no queda del todo claro, el autor en este experimento parece que asume que el valor de $\beta$ y $\gamma$ son iguales para cada nodo. La función de coste que utiliza es:
 
-$$ f(\beta, \gamma) = \sqrt{ \frac{ \sum_{i=1}^{t} ( \widehat{I}(\beta^*, \gamma^*) - \widehat{I}(\beta, \gamma) )^2 }{t} } $$
+$$f(\beta, \gamma) = \sqrt{\frac{\sum\hspace{0pt}_{i=1}^{t}(\widehat{I}(\beta^\*, \gamma^\*) - \widehat{I}(\beta, \gamma))^2 }{t}}$$
 
-donde $ \widehat{I}(\beta, \gamma)$ es la cantidad de infestados totales en función del tiempo, para un modelo que tiene como parámetros $\beta$ y $\gamma$, considerando además el resto de parámetros y valores iniciales prefijados anteriormente. Note entonces que $ \widehat{I}(\beta^*, \gamma^*) $ serían los infestados totales en función del tiempo, del modelo original. En otras palabras, esta función objetivo no es más que la raíz del error cuadrático medio.
+donde $\widehat{I}(\beta, \gamma)$ es la cantidad de infestados totales en función del tiempo, para un modelo que tiene como parámetros $\beta$ y $\gamma$, considerando además el resto de parámetros y valores iniciales prefijados anteriormente. Note entonces que $\widehat{I}(\beta^\*, \gamma^\*)$ serían los infestados totales en función del tiempo, del modelo original. En otras palabras, esta función objetivo no es más que la raíz del error cuadrático medio.
 
 El autor aprovecha además esta prueba para verificar la eficiencia de las implementaciones sin `numba` y con `numba` del evaluador del SEDO (prueba que ya se realizó en el [Experimento 2](/experiments/experiment_02/README_experiment_02.md)). Para cada algoritmo se realizan 30 simulaciones y se extrae el tiempo promedio que demora este, y la media de los errores cuadráticos medios. Los resultados obtenidos en el trabajo de diploma fueron:
 
@@ -177,7 +177,7 @@ Para la etapa de mutación la fórmula utilizada para generar un nuevo individuo
 
 $$ v = x_{r_1} + F ( x_{r_2} - x_{r_3} ) $$
 
-Para la etapa de cruce, siendo $D$ la dimensión de los vectores solución, se genera $n$ natural entre $[0, D)$, y $L = \min( X + 1, D-1 )$ siendo $ X \sim Geo(1-CR)$, luego se seleccionan los componentes de $v$ desde el $n-$ésimo hasta el $((n+L-1)\mod D)-$ésimo, y se crea un nuevo individuo con estos componetes, y el resto coincidirían con el individuo original. En otras palabras, viendo el vector $v$ circularmente, se toman los componentes desde la posición $n$ hasta la posición $n+L-1$, y se crea el nuevo individuo con estos valores, y el resto se toman del vector original.
+Para la etapa de cruce, siendo $D$ la dimensión de los vectores solución, se genera $n$ natural entre $[0, D)$, y $L = \min( X + 1, D-1 )$ siendo $X \sim Geo(1-CR)$, luego se seleccionan los componentes de $v$ desde el $n-$ésimo hasta el $((n+L-1)\mod D)-$ésimo, y se crea un nuevo individuo con estos componetes, y el resto coincidirían con el individuo original. En otras palabras, viendo el vector $v$ circularmente, se toman los componentes desde la posición $n$ hasta la posición $n+L-1$, y se crea el nuevo individuo con estos valores, y el resto se toman del vector original.
 
 Por ejemplo, supongamos que $n = 4$, $L= 3$, y $D = 6$, si el vector original es:
 
@@ -280,7 +280,7 @@ Resultados:
 
 El algoritmo de Levenberg-Marquardt es un método de optimización utilizado comúnmente para ajustar parámetros en modelos no lineales. Su aplicación más frecuente es en el campo de la regresión no lineal. El objetivo principal del algoritmo de Levenberg-Marquardt es encontrar los valores de parámetros que minimizan la diferencia entre los valores observados y los valores predichos por el modelo no lineal. Este algoritmo tiene las siguientes características:
 
-- **Modelo a minimizar**: Se suele definir de la forma $ y = f(x, \theta) $, siendo $\theta$ los parámetros que se desean ajustar.
+- **Modelo a minimizar**: Se suele definir de la forma $y = f(x, \theta)$, siendo $\theta$ los parámetros que se desean ajustar.
 
 - **Función Objetivo**: Esta suele ser la suma de los errores cuadrados de lo valores reales con los estimados. Pero puede usarse la versión con raíz cuadrada.
 
@@ -292,13 +292,13 @@ El algoritmo de Levenberg-Marquardt es un método de optimización utilizado com
 
     - **Actualización de los parámetros**: Se utiliza una iteración que ajusta los parámetros para minimizar la función objetivo. Esto implica calcular una dirección de búsqueda basada en la matriz Jacobiana y la matriz Hessiana, que es una matriz que estima la curvatura de la función objetivo. La magnitud de la actualización de los parámetros se controla mediante un parámetro denotado por $\lambda$, que se ajusta dinámicamente durante las iteraciones.
     
-    - **Evaluación de la mejora**: Se evalúa si la nueva estimación de los parámetros reduce la función objetivo. Si es así, se acepta la actualización de los parámetros y $\lambda$ se ajusta para una convergencia más rápida. Si no se produce una mejora, se rechaza la actualización y $\lambda se ajusta para una convergencia más lenta.
+    - **Evaluación de la mejora**: Se evalúa si la nueva estimación de los parámetros reduce la función objetivo. Si es así, se acepta la actualización de los parámetros y $\lambda$ se ajusta para una convergencia más rápida. Si no se produce una mejora, se rechaza la actualización y $\lambda$ se ajusta para una convergencia más lenta.
 
 - Convergencia: Este algoritmo continúa iterando hasta que se cumple un criterio de convergencia, que generalmente involucra la comparación de la magnitud de la actualización de los parámetros con un umbral o la evaluación de cambios en la función objetivo. Si los parámetros convergen a una solución, el algoritmo termina.
 
 Este algoritmo comparado con los anterior es de búsqueda local, y no incluye factores estocásticos como los anteriores. La ventaja principal es que converge rápido a una mínimo local cercano, pero a su vez esto lo limita a encontrar máximos globales, ya que depende muchísimo del vector inicial usado para comenzar el algoritmo. Para añadir exploración, por ejemplo, bastaría con probar para una cantidad decente de vectores iniciales aleatorios, y ejecutar este algoritmo tomando cada uno, y luego comparando el mejor resultado.
 
-Una desventaja que tiene este algoritmo y nos afecta a priori es que en su forma básica no admite restricciones lineales en los parámetros ajustables. Esto significa que no puede manejar directamente restricciones como $ a \cdot x + b \le \theta$ donde $a$ y $b$ son constantes lineales y $\theta$ es un parámetro ajustable. Una forma de librarnos de este mal es proyectando los valores resultantes sobre el espacio de parámetros permitidos, garantizando que cumplan con las restricciones lineales. Para nuestro problema deberíamos buscar una función de $ \mathbf{R} \rightarrow (0,1)$. Es de imaginar que el autor de la tesis anterior se enfrentó a este problema igualmente, y lamentablemente desconocemos de como lo superó. Sin embargo nosotros proponemos utilizar la función *sigmoide*:
+Una desventaja que tiene este algoritmo y nos afecta a priori es que en su forma básica no admite restricciones lineales en los parámetros ajustables. Esto significa que no puede manejar directamente restricciones como $a \cdot x + b \le \theta$ donde $a$ y $b$ son constantes lineales y $\theta$ es un parámetro ajustable. Una forma de librarnos de este mal es proyectando los valores resultantes sobre el espacio de parámetros permitidos, garantizando que cumplan con las restricciones lineales. Para nuestro problema deberíamos buscar una función de $\mathbf{R} \rightarrow (0,1)$. Es de imaginar que el autor de la tesis anterior se enfrentó a este problema igualmente, y lamentablemente desconocemos de como lo superó. Sin embargo nosotros proponemos utilizar la función *sigmoide*:
 
 $$ h_ \theta (x) =  \frac{1 }{1 + e^{- \theta^T x} }  $$
 
