@@ -64,3 +64,12 @@ Similar al **Método 2** donde en este caso `fun_sir_lagrange_numba` recibe tant
 Para finalizar ilustramos todas las curvas de complejidad temporal real simuladas, para facilitar la comparación de estas. Así destacamos, la superioridad de los **Métodos 3 y 4** que utilizan la compilación `JIT`. Mientras que para los **Métodos 1 y 2** aunque la curva de creciemiento es más acelerada, ambas no tienen mucha diferencias entre ellas. Sin embargo algo que llama mucho la atención es el tiempo adicional que toma el **Método 3** con respecto al **Método 4**, donde para generar dinámicamente la función que deseamos compilar consume un tiempo extra, que empeora mucho la complejidad cuando se compara con el último Método.
 
 ![Comparación Final](/experiments/experiment_02/img/final_results.png)
+
+La siguiente tabla muestra los tiempos promedio de los métodos anteriores según la cantidad de nodos.
+
+|  Métodos  |       2.0 |       3.0 |       4.0 |       5.0 |       6.0 |      7.0 |      8.0 |      9.0 |     10.0 |     11.0 |    12.0 |      13.0 |      14.0 |      15.0 |
+|---:|----------:|----------:|----------:|----------:|----------:|---------:|---------:|---------:|---------:|---------:|--------:|----------:|----------:|----------:|
+|  1 | 0.145337  | 0.328384  | 0.59568   | 0.92258   | 1.48367   | 1.96527  | 2.73017  | 3.6105   | 5.0046   | 6.48552  | 8.04469 | 10.2758   | 12.7072   | 14.698    |
+|  2 | 0.131396  | 0.279462  | 0.506211  | 0.828301  | 1.30249   | 1.84798  | 2.69847  | 3.51996  | 4.80328  | 6.24203  | 7.61537 |  9.59812  | 12.2973   | 14.1761   |
+|  3 | 1.8168    | 1.80225   | 1.82394   | 1.86079   | 1.87864   | 1.90201  | 1.93787  | 1.96801  | 2.01132  | 2.03783  | 2.06596 |  2.10979  |  2.1647   |  2.19735  |
+|  4 | 0.0358776 | 0.0466371 | 0.0607016 | 0.0748391 | 0.0952191 | 0.109705 | 0.133164 | 0.149499 | 0.175353 | 0.198625 | 0.22376 |  0.251134 |  0.284901 |  0.310891 |
