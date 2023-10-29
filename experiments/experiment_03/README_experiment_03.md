@@ -1,6 +1,6 @@
 # Experimento 03
 
-Replicación de la prueba realizada en el Trabajo de Diploma *Difusión de epidemias sobre redes empleando movimiento lagrangiano* para la selección del algoritmo de estimación de parámetros.
+Replicación de la prueba realizada en el Trabajo de Diploma *Difusión de epidemias sobre redes empleando movimiento lagrangiano* sobre 3 algoritmos de estimación de parámetros.
 
 ## Experiencia anterior
 
