@@ -102,7 +102,7 @@ def fun_SIR_EULER_SODE(t, y, F, Beta, Gamma):
 ###################################################
 
 @njit
-def fun_sir_lagrange(Out, In, Beta, Gamma):
+def fun_sir_lagrange(t,y, Out, In, Beta, Gamma):
 
     K = Out.shape[0]
     Out_i_k = Out.sum(axis=1)
@@ -152,6 +152,37 @@ def fun_SIS_EULER_SODE(t,y, F, Beta, Gamma):
     new_y = new_y.reshape((3*K,))
     return new_y
 
+###################################################
+###### MODELO SIS CON MOVIMIENTO LAGRANGIANO ######
+###################################################
+
+@njit
+def fun_sis_lagrange(t,y, Out, In, Beta, Gamma):
+
+    K = Out.shape[0]
+    Out_i_k = Out.sum(axis=1)
+
+    y = y.reshape((3,K,K))
+    I_k_i = y[1].sum(axis=0)
+    N_k_i = y[2].sum(axis=0)
+    new_y = np.zeros((3,K,K))
+    for i in range(K):
+        for j in range(K):
+            if i == j:
+                new_y[0,i,i] = - Beta[i] * y[0,i,i] * I_k_i[i] / N_k_i[i] + Gamma[i] * y[1,i,i] - \
+                                y[0,i,i] * Out_i_k[i] + (In[i,] * y[0,i]).sum()
+                new_y[1,i,i] =   Beta[i] * y[0,i,i] * I_k_i[i] / N_k_i[i] - Gamma[i] * y[1,i,i] - \
+                                y[1,i,i] * Out_i_k[i] + (In[i,] * y[1,i]).sum()
+                new_y[2,i,i] = - y[2,i,i] * Out_i_k[i] + (In[i,] * y[2,i]).sum()
+            else:
+                new_y[0,i,j] = - Beta[j] * y[0,i,j] * I_k_i[j] / N_k_i[j] + Gamma[j] * y[1,i,j] - \
+                                In[i,j] * y[0,i,j] + Out[i,j] * y[0,i,i]
+                new_y[1,i,j] =   Beta[j] * y[0,i,j] * I_k_i[j] / N_k_i[j] - Gamma[j] * y[1,i,j] - \
+                                In[i,j] * y[1,i,j] + Out[i,j] * y[1,i,i]
+                new_y[2,i,j] = - In[i,j] * y[2,i,j] + Out[i,j] * y[2,i,i]
+    new_y = new_y.reshape((3*K*K,))
+    return new_y
+
 ##################################################
 ###### MODELO SEIR CON MOVIMIENTO EULERIANO ######
 ##################################################
@@ -174,4 +205,44 @@ def fun_SEIR_EULER_SODE(t,y, F, Beta, Gamma, Sigma):
             new_y[3,i] += F[j,i] * y[3,j] - F[i,j] * y[3,i]
             new_y[4,i] += F[j,i] * y[4,j] - F[i,j] * y[4,i]
     new_y = new_y.reshape((5*K,))
+    return new_y
+
+####################################################
+###### MODELO SEIR CON MOVIMIENTO LAGRANGIANO ######
+####################################################
+
+@njit
+def fun_seir_lagrange(t,y, Out, In, Beta, Gamma, Sigma):
+    
+    K = Out.shape[0]
+    Out_i_k = Out.sum(axis=1)
+
+    y = y.reshape((5,K,K))
+    I_k_i = y[2].sum(axis=0)
+    N_k_i = y[4].sum(axis=0)
+    new_y = np.zeros((5,K,K))
+    for i in range(K):
+        for j in range(K):
+            if i == j:
+                new_y[0,i,i] = - Beta[i] * y[0,i,i] * I_k_i[i] / N_k_i[i] - \
+                                y[0,i,i] * Out_i_k[i] + (In[i,] * y[0,i]).sum()
+                new_y[1,i,i] =   Beta[i] * y[0,i,i] * I_k_i[i] / N_k_i[i] - Sigma[i] * y[1,i,i] - \
+                                y[1,i,i] * Out_i_k[i] + (In[i,] * y[1,i]).sum()
+                new_y[2,i,i] =   Sigma[i] * y[1,i,i] - Gamma[i] * y[2,i,i] - \
+                                y[2,i,i] * Out_i_k[i] + (In[i,] * y[2,i]).sum()
+                new_y[3,i,i] =   Gamma[i] * y[2,i,i] - \
+                                y[3,i,i] * Out_i_k[i] + (In[i,] * y[3,i]).sum()
+                new_y[4,i,i] = - y[4,i,i] * Out_i_k[i] + (In[i,] * y[4,i]).sum()
+            else:
+                new_y[0,i,j] = - Beta[j] * y[0,i,j] * I_k_i[j] / N_k_i[j] - \
+                                In[i,j] * y[0,i,j] + Out[i,j] * y[0,i,i]
+                new_y[1,i,j] =   Beta[j] * y[0,i,j] * I_k_i[j] / N_k_i[j] - Sigma[j] * y[1,i,j] - \
+                                In[i,j] * y[1,i,j] + Out[i,j] * y[1,i,i]
+                new_y[2,i,j] =   Sigma[j] * y[1,i,j] - Gamma[j] * y[2,i,j] - \
+                                In[i,j] * y[2,i,j] + Out[i,j] * y[2,i,i]
+                new_y[3,i,j] =   Gamma[j] * y[2,i,j] - \
+                                In[i,j] * y[3,i,j] + Out[i,j] * y[3,i,i]
+                new_y[4,i,j] = - In[i,j] * y[4,i,j] + Out[i,j] * y[4,i,i]
+                                
+    new_y = new_y.reshape((5*K*K,))
     return new_y
