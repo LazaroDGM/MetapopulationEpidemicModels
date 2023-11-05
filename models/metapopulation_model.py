@@ -9,7 +9,7 @@ RE_COMPARTMENT_NODE = re.compile('(\w+)\-(\d+)')
 class EULER_COMPARTIMENTAL_Model(COMPARTMENTAL_Model):
     
     def __init__(self, compartmentals_name, compartmentals_short_name, params_name, K, name) -> None:
-        super().__init__(compartmentals_name, compartmentals_short_name, params_name + ['F'], name)
+        super().__init__(compartmentals_name, compartmentals_short_name, ['F'] + params_name, name)
 
         if K < 2:
             raise Exception('La cantidad de nodos debe ser un entero mayor que 1')
@@ -20,7 +20,7 @@ class EULER_COMPARTIMENTAL_Model(COMPARTMENTAL_Model):
             if not (self._K == params['F'].shape[0] == params['F'].shape[1]):
                 raise Exception(f'La matriz "F" debe ser de dimension ({self._K, self._K}).')
         else:
-            if not (self._K == params[-1].shape[0] == params[-1].shape[1]):
+            if not (self._K == params[0].shape[0] == params[0].shape[1]):
                 raise Exception(f'La matriz "F" debe ser de dimension ({self._K, self._K}).')
         super().set_params(params)
         
@@ -69,7 +69,7 @@ class EULER_COMPARTIMENTAL_Model(COMPARTMENTAL_Model):
 class LAGRANGE_COMPARTIMENTAL_Model(COMPARTMENTAL_Model):
     
     def __init__(self, compartmentals_name, compartmentals_short_name, params_name, K, name) -> None:
-        super().__init__(compartmentals_name, compartmentals_short_name, params_name + ['Out', 'In'], name)
+        super().__init__(compartmentals_name, compartmentals_short_name, ['Out', 'In'] + params_name, name)
 
         if K < 2:
             raise Exception('La cantidad de nodos debe ser un entero mayor que 1')
@@ -82,9 +82,9 @@ class LAGRANGE_COMPARTIMENTAL_Model(COMPARTMENTAL_Model):
             if not (self._K == params['In'].shape[0] == params['In'].shape[1]):
                 raise Exception(f'La matriz "In" debe ser de dimension ({self._K, self._K}).')
         else:
-            if not (self._K == params[-2].shape[0] == params[-2].shape[1]):
+            if not (self._K == params[0].shape[0] == params[0].shape[1]):
                 raise Exception(f'La matriz "Out" debe ser de dimension ({self._K, self._K}).')
-            if not (self._K == params[-1].shape[0] == params[-1].shape[1]):
+            if not (self._K == params[1].shape[0] == params[1].shape[1]):
                 raise Exception(f'La matriz "In" debe ser de dimension ({self._K, self._K}).')
         super().set_params(params)
         
