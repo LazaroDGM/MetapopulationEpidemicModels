@@ -1,4 +1,3 @@
-import numba_models as nm
 import numpy as np
 from scipy.integrate import solve_ivp
 import matplotlib.pyplot as plt
@@ -90,9 +89,10 @@ class COMPARTMENTAL_Model(SODE_Model):
             raise Exception('Nombres Cortos de compartimentos repetidos')
         
         
-        self.__compartmentals_name = compartmentals_name
-        self.__compartmentals_short_name = [str.lower(i) for i in compartmentals_short_name]
-        self.__total_compartmentals = len(compartmentals_name)
+        self._compartmentals_name = compartmentals_name
+        self._compartmentals_short_name = [str.lower(i) for i in compartmentals_short_name]
+        self._compartmentals_dict = { short : i for i, short in enumerate(self._compartmentals_short_name)}
+        self._total_compartmentals = len(compartmentals_name)
 
     def set_params(self, params: dict|list):
         try:
@@ -120,11 +120,11 @@ class COMPARTMENTAL_Model(SODE_Model):
             ys = self._result.y
             if mode == 'total':
                 for i, y in enumerate(ys):
-                    plt.plot(t, y, label= self.__compartmentals_name[i])
+                    plt.plot(t, y, label= self._compartmentals_name[i])
             else:
                 try:
-                    index = self.__compartmentals_short_name.index(mode)
-                    plt.plot(t, ys[index], label= self.__compartmentals_name[index])
+                    index = self._compartmentals_dict[mode]
+                    plt.plot(t, ys[index], label= self._compartmentals_name[index])
                 except:
                     raise Exception('Modo de graficado incorrecto')
             if show:

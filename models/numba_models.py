@@ -131,3 +131,47 @@ def fun_sir_lagrange(Out, In, Beta, Gamma):
                 new_y[3,i,j] = - In[i,j] * y[3,i,j] + Out[i,j] * y[3,i,i]
     new_y = new_y.reshape((4*K*K,))
     return new_y
+
+#################################################
+###### MODELO SIS CON MOVIMIENTO EULERIANO ######
+#################################################
+
+@njit
+def fun_SIS_EULER_SODE(t,y, F, Beta, Gamma):
+
+    K = F.shape[0]
+    y = y.reshape((3,K))
+    new_y = np.zeros((3,K))
+    for i in range(K):
+        new_y[0,i] = - Beta[i] * y[0,i] * y[1,i] / y[2,i] + Gamma[i] * y[1,i]
+        new_y[1,i] = Beta[i] * y[0,i] * y[1,i] / y[2,i] - Gamma[i] * y[1,i]
+        for j in range(K):
+            new_y[0,i] += F[j,i] * y[0,j] - F[i,j] * y[0,i]
+            new_y[1,i] += F[j,i] * y[1,j] - F[i,j] * y[1,i]
+            new_y[2,i] += F[j,i] * y[2,j] - F[i,j] * y[2,i]
+    new_y = new_y.reshape((3*K,))
+    return new_y
+
+##################################################
+###### MODELO SEIR CON MOVIMIENTO EULERIANO ######
+##################################################
+
+@njit
+def fun_SEIR_EULER_SODE(t,y, F, Beta, Gamma, Sigma):
+
+    K = F.shape[0]
+    y = y.reshape((5,K))
+    new_y = np.zeros((5,K))
+    for i in range(K):
+        new_y[0,i] = - Beta[i] * y[0,i] * y[1,i] / y[4,i]
+        new_y[1,i] = Beta[i] * y[0,i] * y[1,i] / y[4,i] - Sigma[i] * y[1,i]
+        new_y[2,i] = Sigma[i] * y[1,i] - Gamma[i] * y[2,i]
+        new_y[3,i] = Gamma[i] * y[2,i]
+        for j in range(K):
+            new_y[0,i] += F[j,i] * y[0,j] - F[i,j] * y[0,i]
+            new_y[1,i] += F[j,i] * y[1,j] - F[i,j] * y[1,i]
+            new_y[2,i] += F[j,i] * y[2,j] - F[i,j] * y[2,i]
+            new_y[3,i] += F[j,i] * y[3,j] - F[i,j] * y[3,i]
+            new_y[4,i] += F[j,i] * y[4,j] - F[i,j] * y[4,i]
+    new_y = new_y.reshape((5*K,))
+    return new_y

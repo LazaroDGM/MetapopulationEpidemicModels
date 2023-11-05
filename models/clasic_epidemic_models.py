@@ -1,7 +1,6 @@
 from SODE_model import COMPARTMENTAL_Model
 import numpy as np
 import numba_models as nm
-import matplotlib.pyplot as plt
 
 class SIR_Model(COMPARTMENTAL_Model):
 
