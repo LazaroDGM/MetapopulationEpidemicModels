@@ -4,17 +4,15 @@ import numpy as np
 ##### MODELOS DE SIR, SIS Y SEIR CLÁSICOS #####
 ###############################################
 
-def fun_sir_model(beta, gamma, N):
+def fun_sir_model(beta, gamma):
     '''
     Genera el sistema de ecuaciones para un modelo SIR.
     
     Parámetros
     ---
-    `beta`: Probabilidad de Contagio. Tipo `float`.
+    `beta`: Tasa de Incidencia. Tipo `float`.
 
     `gamma`: Tasa de Recuperación. Tipo `float`.
-
-    `N`: Cantidad de personas en la población. Tipo `float`.
 
     Retorno
     ---
@@ -29,23 +27,21 @@ def fun_sir_model(beta, gamma, N):
         # Infestados   : 1
         # Recuperados  : 2
         new_y = np.zeros((3,), dtype=float)
-        new_y[0] = - beta * y[0] * y[1] / N
-        new_y[1] = beta * y[0] * y[1] / N - gamma * y[1]
+        new_y[0] = - beta * y[0] * y[1]
+        new_y[1] = beta * y[0] * y[1] - gamma * y[1]
         new_y[2] = gamma * y[1]
         return new_y
     return fun
 
-def fun_sis_model(beta, gamma, N):
+def fun_sis_model(beta, gamma):
     '''
     Genera el sistema de ecuaciones para un modelo SIS.
     
     Parámetros
     ---
-    `beta`: Probabilidad de Contagio. Tipo `float`.
+    `beta`: Tasa de Incidencia. Tipo `float`.
 
     `gamma`: Tasa de Recuperación. Tipo `float`.
-
-    `N`: Cantidad de personas en la población. Tipo `float`.
 
     Retorno
     ---
@@ -59,24 +55,22 @@ def fun_sis_model(beta, gamma, N):
         # Susceptibles : 0
         # Infestados   : 1
         new_y = np.zeros((2,), dtype=float)
-        new_y[0] = - beta * y[0] * y[1] / N + gamma * y[1]
-        new_y[1] = beta * y[0] * y[1] / N - gamma * y[1]
+        new_y[0] = - beta * y[0] * y[1] + gamma * y[1]
+        new_y[1] = beta * y[0] * y[1] - gamma * y[1]
         return new_y
     return fun
 
-def fun_seir_model(beta, gamma, sigma, N):
+def fun_seir_model(beta, gamma, sigma):
     '''
     Genera el sistema de ecuaciones para un modelo SEIR.
     
     Parámetros
     ---
-    `beta`: Probabilidad de Contagio. Tipo `float`
+    `beta`: Tasa de Incidencia. Tipo `float`
 
     `gamma`: Tasa de Recuperación. Tipo `float`.
 
     `sigma`: Tasa de Incubación. Tipo `float`.
-
-    `N`: Cantidad de personas en la población. Tipo `float`.
 
     Retorno
     ---
@@ -93,8 +87,8 @@ def fun_seir_model(beta, gamma, sigma, N):
         # Infestados   : 2
         # Recuperados  : 3
         new_y = np.zeros((4,), dtype=float)
-        new_y[0] = - beta * y[0] * y[2] / N
-        new_y[1] = beta * y[0] * y[2] / N - sigma * y[1]
+        new_y[0] = - beta * y[0] * y[2]
+        new_y[1] = beta * y[0] * y[2] - sigma * y[1]
         new_y[2] = sigma * y[1] - gamma * y[2]
         new_y[3] = gamma * y[2]
         return new_y
@@ -171,7 +165,7 @@ def fun_sir_eulerian(F, Beta, Gamma):
     `F`: Matriz de movimiento de dimensión `K x K` (matriz cuadrada con diagonal nula).
     Indica la tasa de traslado de un nodo `i` a un nodo `j`.
 
-    `Beta`: Probabilidad de Contagio por nodo. Vector de tipo `float` y tamaño `K`.
+    `Beta`: Tasa de Incidencia por nodo. Vector de tipo `float` y tamaño `K`.
 
     `Gamma`: Tasa de Recuperación por nodo. Vector de tipo `float` y tamaño `K`.
 
@@ -212,7 +206,7 @@ def fun_sir_eulerian_lite(F, Beta, Gamma):
     `F`: Matriz de movimiento de dimensión `K x K` (matriz cuadrada con diagonal nula).
     Indica la tasa de traslado de un nodo `i` a un nodo `j`.
 
-    `Beta`: Probabilidad de Contagio por nodo. Vector de tipo `float` y tamaño `K`.
+    `Beta`: Tasa de Incidencia por nodo. Vector de tipo `float` y tamaño `K`.
 
     `Gamma`: Tasa de Recuperación por nodo. Vector de tipo `float` y tamaño `K`.
 
@@ -258,7 +252,7 @@ def fun_sir_lagrange(Out, In, Beta, Gamma):
     `In`: Matriz de movimiento de inmigración de dimensión `K x K` (matriz cuadrada con diagonal nula).
     Indica la tasa de traslado de los agentes de `i` en `j` que regresan al nodo `i`.
 
-    `Beta`: Probabilidad de Contagio por nodo. Vector de tipo `float` y tamaño `K`.
+    `Beta`: Tasa de Incidencia por nodo. Vector de tipo `float` y tamaño `K`.
 
     `Gamma`: Tasa de Recuperación por nodo. Vector de tipo `float` y tamaño `K`.
 
@@ -315,7 +309,7 @@ def fun_sir_lagrange_lite(Out, In, Beta, Gamma):
     `In`: Matriz de movimiento de inmigración de dimensión `K x K` (matriz cuadrada con diagonal nula).
     Indica la tasa de traslado de los agentes de `i` en `j` que regresan al nodo `i`.
 
-    `Beta`: Probabilidad de Contagio por nodo. Vector de tipo `float` y tamaño `K`.
+    `Beta`: Tasa de Incidencia por nodo. Vector de tipo `float` y tamaño `K`.
 
     `Gamma`: Tasa de Recuperación por nodo. Vector de tipo `float` y tamaño `K`.
 
@@ -368,7 +362,7 @@ def fun_sis_eulerian(F, Beta, Gamma):
     `F`: Matriz de movimiento de dimensión `K x K` (matriz cuadrada con diagonal nula).
     Indica la tasa de traslado de un nodo `i` a un nodo `j`.
 
-    `Beta`: Probabilidad de Contagio por nodo. Vector de tipo `float` y tamaño `K`.
+    `Beta`: Tasa de Incidencia por nodo. Vector de tipo `float` y tamaño `K`.
 
     `Gamma`: Tasa de Recuperación por nodo. Vector de tipo `float` y tamaño `K`.
 
@@ -407,7 +401,7 @@ def fun_sis_eulerian_lite(F, Beta, Gamma):
     `F`: Matriz de movimiento de dimensión `K x K` (matriz cuadrada con diagonal nula).
     Indica la tasa de traslado de un nodo `i` a un nodo `j`.
 
-    `Beta`: Probabilidad de Contagio por nodo. Vector de tipo `float` y tamaño `K`.
+    `Beta`: Tasa de Incidencia por nodo. Vector de tipo `float` y tamaño `K`.
 
     `Gamma`: Tasa de Recuperación por nodo. Vector de tipo `float` y tamaño `K`.
 
@@ -451,7 +445,7 @@ def fun_sis_lagrange(Out, In, Beta, Gamma):
     `In`: Matriz de movimiento de inmigración de dimensión `K x K` (matriz cuadrada con diagonal nula).
     Indica la tasa de traslado de los agentes de `i` en `j` que regresan al nodo `i`.
 
-    `Beta`: Probabilidad de Contagio por nodo. Vector de tipo `float` y tamaño `K`.
+    `Beta`: Tasa de Incidencia por nodo. Vector de tipo `float` y tamaño `K`.
 
     `Gamma`: Tasa de Recuperación por nodo. Vector de tipo `float` y tamaño `K`.
 
@@ -504,7 +498,7 @@ def fun_sis_lagrange_lite(Out, In, Beta, Gamma):
     `In`: Matriz de movimiento de inmigración de dimensión `K x K` (matriz cuadrada con diagonal nula).
     Indica la tasa de traslado de los agentes de `i` en `j` que regresan al nodo `i`.
 
-    `Beta`: Probabilidad de Contagio por nodo. Vector de tipo `float` y tamaño `K`.
+    `Beta`: Tasa de Incidencia por nodo. Vector de tipo `float` y tamaño `K`.
 
     `Gamma`: Tasa de Recuperación por nodo. Vector de tipo `float` y tamaño `K`.
 
@@ -553,7 +547,7 @@ def fun_seir_eulerian(F, Beta, Gamma, Sigma):
     `F`: Matriz de movimiento de dimensión `K x K` (matriz cuadrada con diagonal nula).
     Indica la tasa de traslado de un nodo `i` a un nodo `j`.
 
-    `Beta`: Probabilidad de Contagio por nodo. Vector de tipo `float` y tamaño `K`.
+    `Beta`: Tasa de Incidencia por nodo. Vector de tipo `float` y tamaño `K`.
 
     `Gamma`: Tasa de Recuperación por nodo. Vector de tipo `float` y tamaño `K`.
 
@@ -601,7 +595,7 @@ def fun_seir_lagrange(Out, In, Beta, Gamma, Sigma):
     `In`: Matriz de movimiento de inmigración de dimensión `K x K` (matriz cuadrada con diagonal nula).
     Indica la tasa de traslado de los agentes de `i` en `j` que regresan al nodo `i`.
 
-    `Beta`: Probabilidad de Contagio por nodo. Vector de tipo `float` y tamaño `K`.
+    `Beta`: Tasa de Incidencia por nodo. Vector de tipo `float` y tamaño `K`.
 
     `Gamma`: Tasa de Recuperación por nodo. Vector de tipo `float` y tamaño `K`.
 

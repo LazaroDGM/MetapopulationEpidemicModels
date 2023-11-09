@@ -6,7 +6,7 @@ from numba import jit, njit
 ###############################################
 
 @njit
-def fun_SIR_SODE(t, y, beta, gamma, N):
+def fun_SIR_SODE(t, y, beta, gamma):
     
     # Indizado del vector solucion
     # ----------------------------
@@ -14,25 +14,25 @@ def fun_SIR_SODE(t, y, beta, gamma, N):
     # Infestados   : 1
     # Recuperados  : 2
     new_y = np.zeros((3,), dtype=float)
-    new_y[0] = - beta * y[0] * y[1] / N
-    new_y[1] = beta * y[0] * y[1] / N - gamma * y[1]
+    new_y[0] = - beta * y[0] * y[1]
+    new_y[1] = beta * y[0] * y[1] - gamma * y[1]
     new_y[2] = gamma * y[1]
     return new_y
 
 @njit
-def fun_SIS_SODE(t, y, beta, gamma, N):
+def fun_SIS_SODE(t, y, beta, gamma):
 
     # Indizado del vector solucion
     # ----------------------------
     # Susceptibles : 0
     # Infestados   : 1
     new_y = np.zeros((2,), dtype=float)
-    new_y[0] = - beta * y[0] * y[1] / N + gamma * y[1]
-    new_y[1] = beta * y[0] * y[1] / N - gamma * y[1]
+    new_y[0] = - beta * y[0] * y[1] + gamma * y[1]
+    new_y[1] = beta * y[0] * y[1] - gamma * y[1]
     return new_y
 
 @njit
-def fun_SEIR_SODE(t, y, beta, gamma, sigma, N):
+def fun_SEIR_SODE(t, y, beta, gamma, sigma):
 
     # Indizado del vector solucion
     # ----------------------------
@@ -41,8 +41,8 @@ def fun_SEIR_SODE(t, y, beta, gamma, sigma, N):
     # Infestados   : 2
     # Recuperados  : 3
     new_y = np.zeros((4,), dtype=float)
-    new_y[0] = - beta * y[0] * y[2] / N
-    new_y[1] = beta * y[0] * y[2] / N - sigma * y[1]
+    new_y[0] = - beta * y[0] * y[2]
+    new_y[1] = beta * y[0] * y[2] - sigma * y[1]
     new_y[2] = sigma * y[1] - gamma * y[2]
     new_y[3] = gamma * y[2]
     return new_y
