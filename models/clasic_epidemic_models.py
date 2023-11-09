@@ -1,6 +1,10 @@
-from SODE_model import COMPARTMENTAL_Model
 import numpy as np
-import numba_models as nm
+try:
+    import numba_models as nm
+    from SODE_model import COMPARTMENTAL_Model
+except:
+    import models.numba_models as nm
+    from models.SODE_model import COMPARTMENTAL_Model
 
 class SIR_Model(COMPARTMENTAL_Model):
 
@@ -13,6 +17,13 @@ class SIR_Model(COMPARTMENTAL_Model):
             beta= self._params[0],
             gamma= self._params[1],
             N= self._params[2],
+        )
+    
+    def fun_args_SODE(self, t, y, args):
+        return nm.fun_SIR_SODE(t,y,
+            beta= args[0],
+            gamma= args[1],
+            N= args[2],
         )
 
 
@@ -28,6 +39,13 @@ class SIS_Model(COMPARTMENTAL_Model):
             gamma= self._params[1],
             N= self._params[2],
         )
+    
+    def fun_args_SODE(self, t, y, args):
+        return nm.fun_SIS_SODE(t,y,
+            beta= args[0],
+            gamma= args[1],
+            N= args[2],
+        )
 
 class SEIR_Model(COMPARTMENTAL_Model):
 
@@ -41,5 +59,13 @@ class SEIR_Model(COMPARTMENTAL_Model):
             gamma= self._params[1],
             sigma= self._params[2],
             N= self._params[3],
+        )
+    
+    def fun_args_SODE(self, t, y, args):
+        return nm.fun_SEIR_SODE(t,y,
+            beta= args[0],
+            gamma= args[1],
+            sigma= args[2],
+            N= args[3],
         )
 

@@ -19,8 +19,12 @@ class SODE_Model():
         self._t0 = None
         self._result = None
 
+    def get_resut(self):
+        if self._result:
+            return self._result.copy()
+        raise Exception('Modelo sin resolver')
 
-    def fun_SODE(self, t, y, *args) -> np.ndarray:
+    def fun_SODE(self, t, y) -> np.ndarray:
         '''
         Evaluador del sistema de ecuaciones diferenciales del modelo.
         '''
@@ -58,6 +62,26 @@ class SODE_Model():
         except Exception as e:
             self._result = None
             raise e
+        
+    def fun_args_SODE(self, t, y, args) -> np.ndarray:
+        '''
+        Evaluador del sistema de ecuaciones diferenciales del modelo.
+        '''
+        raise NotImplementedError('')
+
+    def solve_args(self, args, t_span, t_eval=None):
+        '''
+        Resuelve el modelo numericamente
+        '''
+        result_sol = solve_ivp(
+            fun= self.fun_args_SODE,
+            args= [args],
+            t_span=t_span,
+            y0= self._y0,
+            method='RK45',
+            t_eval=t_eval
+        )
+        return result_sol
     
     def plot_result(self):
         raise NotImplementedError()

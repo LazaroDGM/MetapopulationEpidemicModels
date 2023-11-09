@@ -1,7 +1,10 @@
-from SODE_model import COMPARTMENTAL_Model
 import matplotlib.pyplot as plt
 import regex as re
 import numpy as np
+try:
+    from SODE_model import COMPARTMENTAL_Model
+except:
+    from models.SODE_model import COMPARTMENTAL_Model
 
 RE_COMPARTMENT_ALL = re.compile('(\w+)\-all')
 RE_COMPARTMENT_NODE = re.compile('(\w+)\-(\d+)')
