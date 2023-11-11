@@ -81,6 +81,98 @@ class FLUX_Model(SODE_Model):
     def set_initial_value(self, t0, y0):
         super().set_initial_value(t0, y0)
 
+class SIMPLE_TRIP_Model(SODE_Model):
+
+    def __init__(self) -> None:
+        super().__init__([None, None], ['Out', 'In'], 'Simple Trip Model')
+
+    def set_params(self, Out, In):
+        try:
+            self._params[0] = Out
+            self._params[1] = In
+            self._params_correct = True
+        except Exception as e:
+            self._params_correct = False
+            raise e
+        
+    def fun_SODE(self, t, y) -> np.ndarray:
+        if self._params_correct:
+            return nm.fun_LAGRANGE_SODE(t,y,
+                O= self._params[0],
+                I= self._params[1],
+            )
+        else:
+            raise Exception('Los parametros del modelo son Incorrectos')
+        
+    def plot_result(self,mode='all',
+                    xlabel='Tiempo (dias)',
+                    ylabel='Cantidad de personas (unidades)',
+                    show=True,
+                    grid=True,
+                    name_nodes= None):
+        if self._result is not None:
+            mode = mode.lower()
+            K=self._params[0].shape[0]
+            t = self._result.t
+            ys = self._result.y.reshape((K,K,t.shape[0]))
+            if mode == 'all':
+                for i in range(K):
+                    for j in range(K):
+                        plt.plot(t, ys[i,j], label= f'Personas de {i+1} en {j+1}')
+            elif mode == 'all-pop':
+                name_nodes = [f'Poblacion de {i+1}' for i in range(ys.shape[0])]
+                for i in range(K):
+                    plt.plot(t, ys[i].sum(axis=0), label= name_nodes[i])
+            elif mode == 'all-vis':
+                name_nodes = [f'Personas en {i+1}' for i in range(ys.shape[0])]
+                for i in range(K):
+                    plt.plot(t, ys[:,i,:].sum(axis=0), label= name_nodes[i])
+            elif mode == 'all-vis-only':
+                name_nodes = [f'Visitantes en {i+1}' for i in range(ys.shape[0])]
+                for i in range(K):
+                    plt.plot(t, ys[:,i,:].sum(axis=0) - ys[i,i,:], label= name_nodes[i])
+            else:
+                raise Exception('Modo de graficado incorrecto')
+            if show:
+                plt.xlabel(xlabel)
+                plt.ylabel(ylabel)
+                plt.title(label=self._name_model)
+                if grid:
+                    plt.grid()
+                plt.legend()
+                plt.show()
+        else:
+            raise Exception('El modelo no esta resuelto.')
+        
+    def generate_graph_population_pydot(self, name_nodes, y, edge_alpha=10, edge_len=3):
+        G = pydot.Dot('G', graph_type='digraph', layout='circo')
+        for i in range(len(name_nodes)):
+            G.add_node(pydot.Node(name=name_nodes[i],
+                                style='filled',
+                                fillcolor=f'#{hsv_to_hex(240/360,y[i]/y.sum(),1)}'))
+
+        for i in range(len(name_nodes)):
+            for j in range(len(name_nodes)):
+                if self._params[0][i,j] > 0:
+                    G.add_edge(pydot.Edge(name_nodes[i],
+                            name_nodes[j],
+                            arrowsize=1,
+                            len=edge_len,
+                            color=f'#{hsv_to_hex(0,0,1-self._params[0][i,j]*edge_alpha)}'))
+        for i in range(len(name_nodes)):
+            for j in range(len(name_nodes)):
+                if self._params[1][i,j] > 0:
+                    G.add_edge(pydot.Edge(name_nodes[i],
+                            name_nodes[j],
+                            arrowsize=1,
+                            style='dashed',
+                            len=edge_len,
+                            color=f'#{hsv_to_hex(0,0,1-self._params[0][i,j]*edge_alpha)}'))
+        return G
+    
+    def set_initial_value(self, t0, y0):
+        super().set_initial_value(t0, y0)
+
 
 def GenerateRandomArray(n):
     r = np.sort(np.random.random(n))
@@ -110,7 +202,7 @@ def GenerateY0_EULER(K):
     y0 = np.round(np.random.rand(K) * 5000 + 1000, 0)
     return y0
 
-def GenerateParams_SIR_LAGRANGE(K, in_mode= 'rand', a= 1):
+def GenerateParams_LAGRANGE(K, in_mode= 'rand', a= 1):
 
     Out = GenerateRandomMatrix(K,K)
     np.fill_diagonal(Out,0)
@@ -126,16 +218,10 @@ def GenerateParams_SIR_LAGRANGE(K, in_mode= 'rand', a= 1):
         In = np.zeros((K,K)) + a
     else:
         raise Exception('Modo incorrecto')
-        
-    Beta = np.random.rand(K)
-    Gamma = np.random.rand(K)
+    return Out, In
 
-    return Out, In, Beta, Gamma
-
-def GenerateY0_SIR_LAGRANGE(K):
-    y0 = np.zeros((4,K,K))
-    np.fill_diagonal(y0[3], np.round(np.random.rand(K) * 5000 + 1000, 0))
-    np.fill_diagonal(y0[1], np.round(np.random.rand(K) * 5 + 1))
-    y0[0] = y0[3] - y0[1]
-    y0.resize((4*K*K,))
+def GenerateY0_LAGRANGE(K):
+    y0 = np.zeros((K,K))
+    np.fill_diagonal(y0, np.round(np.random.rand(K) * 5000 + 1000, 0))
+    y0.resize((K*K,))
     return y0
